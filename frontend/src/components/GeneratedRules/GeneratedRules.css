@@ -1,0 +1,144 @@
+.generated-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.rules-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--text-secondary);
+  background: rgba(45, 55, 72, 0.2);
+  border-radius: 8px;
+}
+
+.rule-item {
+  padding: 16px;
+  background: rgba(45, 55, 72, 0.2);
+  border-radius: 8px;
+  animation: rulesFadeIn 0.2s ease-out;
+}
+
+.rule-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.rule-name {
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+  margin: 0;
+  flex: 1;
+  margin-right: 12px;
+}
+
+.rule-severity {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.severity-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: rgb(252, 165, 165);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.severity-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: rgb(253, 186, 116);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.severity-info {
+  background: rgba(59, 130, 246, 0.2);
+  color: rgb(147, 197, 253);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.rule-description {
+  color: rgb(209, 213, 219);
+  margin-bottom: 12px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.rule-pattern {
+  margin-top: 8px;
+}
+
+.pattern-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.pattern-code {
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 4px;
+  display: block;
+  font-family: monospace;
+  color: rgb(216, 180, 254);
+  border: 1px solid rgba(126, 87, 194, 0.3);
+}
+
+.card.list-of-rules{
+  padding: 0;
+  margin-top: 8px;
+}
+
+@keyframes rulesFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+
+/* Scrollbar */
+.generated-rules {
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+/* Chrome / Edge / Safari */
+.generated-rules::-webkit-scrollbar {
+  width: 6px;
+}
+
+.generated-rules::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.generated-rules::-webkit-scrollbar-thumb {
+  background: rgba(126, 87, 194, 0.6);
+  border-radius: 4px;
+}
+
+.generated-rules::-webkit-scrollbar-thumb:hover {
+  background: rgba(126, 87, 194, 0.9);
+}
+
+/* Firefox */
+.generated-rules {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 87, 194, 0.6) rgba(255, 255, 255, 0.05);
+}
+

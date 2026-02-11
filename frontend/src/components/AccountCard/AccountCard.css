@@ -1,0 +1,28 @@
+.account-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.account-row .label {
+  color: var(--text-secondary);
+}
+
+.account-row .value {
+  font-weight: 500;
+  color: white;
+}
+
+.account-status {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  font-size: 13px;
+  color: #4ade80;
+}

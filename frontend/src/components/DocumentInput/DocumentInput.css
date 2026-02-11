@@ -1,0 +1,142 @@
+.file-section {
+  padding: 16px;
+  background: rgba(45, 55, 72, 0.2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.file-section h3 {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.file-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.file-select-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: rgba(126, 87, 194, 0.1);
+  border: 1px solid rgba(126, 87, 194, 0.3);
+  border-radius: 6px;
+  color: rgb(167, 139, 250);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.file-select-btn:hover {
+  background: rgba(126, 87, 194, 0.2);
+}
+
+.file-clear-btn {
+  padding: 8px;
+  color: rgb(248, 113, 113);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  outline: none;
+}
+
+.file-clear-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+.file-status {
+  margin-top: 8px;
+}
+
+.file-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.file-success p:first-child {
+  color: white;
+  font-weight: 500;
+  margin: 0;
+}
+
+.file-success p:last-child {
+  color: rgb(52, 211, 153);
+  font-size: 12px;
+  margin: 0;
+}
+
+.file-empty {
+  color: rgb(156, 163, 175);
+  font-size: 14px;
+  padding: 8px 0;
+  text-align: center;
+}
+
+.divider {
+  position: relative;
+  height: 1px;
+  margin: 24px 0;
+}
+
+.divider-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(74, 85, 104, 0.3);
+}
+
+.divider-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgb(15, 15, 35);
+  padding: 0 12px;
+  color: rgb(156, 163, 175);
+  font-size: 14px;
+}
+
+/* Scrollbar */
+.input-field {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+/* Chrome / Edge / Safari */
+.input-field::-webkit-scrollbar {
+  width: 6px;
+}
+
+.input-field::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.input-field::-webkit-scrollbar-thumb {
+  background: rgba(126, 87, 194, 0.6);
+  border-radius: 4px;
+}
+
+.input-field::-webkit-scrollbar-thumb:hover {
+  background: rgba(126, 87, 194, 0.9);
+}
+
+/* Firefox */
+.input-field {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(126, 87, 194, 0.6) rgba(255, 255, 255, 0.05);
+  height: 300px;
+}

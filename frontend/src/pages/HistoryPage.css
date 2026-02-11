@@ -1,0 +1,140 @@
+.page-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+  width: 100%;
+}
+
+.history-page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 1100px){
+  .history-list{
+    grid-template-columns: 1fr;
+  }
+}
+
+.history-item {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  border-radius: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.history-header h3 {
+  margin: 0;
+  max-width: 70%;
+  word-break: break-word;
+}
+
+.history-date {
+  opacity: 0.7;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.history-summary {
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.error-text {
+  color: #ff6b6b;
+}
+
+.details-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  margin-bottom: 8px;
+  width: fit-content;
+}
+
+.details {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 12px;
+  margin-top: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.check-item {
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+
+.check-item.ok {
+  background: rgba(100, 255, 100, 0.08);
+  border-left: 4px solid #3fbf3f;
+}
+
+.check-item.fail {
+  background: rgba(255, 80, 80, 0.08);
+  border-left: 4px solid #ff4d4d;
+}
+
+.check-title {
+  font-weight: 600;
+  display: block;
+}
+
+.check-message {
+  opacity: 0.85;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.back-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 8px 100px;
+  margin-bottom: 20px;
+
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+
+  color: var(--text-primary);
+  cursor: pointer;
+
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(126, 87, 194, 0.5);
+}
+
+.back-button:active {
+  transform: translateY(1px);
+}

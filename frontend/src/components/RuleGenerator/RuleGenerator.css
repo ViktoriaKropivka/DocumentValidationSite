@@ -1,0 +1,83 @@
+.rule-generator {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.generator-section {
+  padding: 16px;
+  background: rgba(45, 55, 72, 0.2);
+  border-radius: 8px;
+}
+
+.generator-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.generator-textarea {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(74, 85, 104, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.generator-textarea:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(126, 87, 194, 0.2);
+}
+
+.generator-textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(126, 87, 194, 0.8), rgba(236, 72, 153, 0.8));
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.generate-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(126, 87, 194, 0.9), rgba(236, 72, 153, 0.9));
+}
+
+.generate-btn:disabled {
+  background: linear-gradient(135deg, rgba(126, 87, 194, 0.3), rgba(236, 72, 153, 0.3));
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.generator-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.generator-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
