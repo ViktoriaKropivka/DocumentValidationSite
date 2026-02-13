@@ -92,4 +92,13 @@ export const apiService = {
 
   saveValidation: (payload: any) =>
     api.post("/save-validation", payload),
+
+  getAllUsers: () =>
+    api.get<User[]>("/admin/users"),
+    
+  changeUserRole: (userId: number, role: string) =>
+    api.put(`/admin/users/${userId}/role`, { role }),
+    
+  toggleUserBlock: (userId: number) =>
+    api.put(`/admin/users/${userId}/toggle-block`),
 };

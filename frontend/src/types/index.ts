@@ -2,6 +2,9 @@ export interface User {
   id: number;
   email: string;
   full_name: string;
+  role: 'user' | 'moderator' | 'admin';  
+  is_active: boolean;                     
+  created_at?: string;                   
 }
 
 export interface UserCreate {

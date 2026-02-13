@@ -7,7 +7,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin, isModerator } = useAuth();
 
   const handleAuthClick = () => {
     if (onAuthClick) {
@@ -25,9 +25,26 @@ export const Header: React.FC<HeaderProps> = ({ onAuthClick }) => {
 
         <div className="header-right">
           {user && (
-            <Link to="/history" className="header-link">
-              Профиль
-            </Link>
+            <>
+              {/* Админ видит управление пользователями */}
+              {isAdmin && (
+                <Link to="/admin/users" className="header-link admin-link">
+                  Управление
+                </Link>
+              )}
+              
+              {/* Модератор видит бейдж */}
+              {isModerator && !isAdmin && (
+                <span className="moderator-badge">
+                  Модератор
+                </span>
+              )}
+              
+              {/* Ссылка на профиль/историю */}
+              <Link to="/history" className="header-link">
+                Профиль
+              </Link>
+            </>
           )}
 
           {user ? (

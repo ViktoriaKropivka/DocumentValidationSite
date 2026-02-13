@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { ProtectedRoute } from './components/ProtectedRoute/ProtectedRoute';
 
 import { Header } from './components/Header/Header';
 import { DocumentInput } from './components/DocumentInput/DocumentInput';
@@ -10,7 +11,8 @@ import { RuleGenerator } from './components/RuleGenerator/RuleGenerator';
 import { ValidationResults } from './components/ValidationResults/ValidationResults';
 import { AuthModal } from './components/AuthModal/AuthModal';
 
-import HistoryPage from './pages/HistoryPage';
+import HistoryPage from './pages/HistoryPage/HistoryPage';
+import AdminUsersPage from './pages/AdminUserPage/AdminUserPage';
 
 import type { ValidationRule, ValidationResponse } from './types';
 
@@ -40,12 +42,6 @@ const MainPage: React.FC = () => {
       }
 
       setValidationResults(response.data);
-
-      await apiService.saveValidation({
-        document_name: uploadedFile ? uploadedFile.name : "Введённый текст",
-        documentText,
-        validation_results: response.data,
-      });
 
     } catch (error) {
       console.error("Ошибка валидации:", error);
@@ -84,7 +80,7 @@ const MainPage: React.FC = () => {
           <button
             className={`btn btn-primary ${loading ? 'loading' : ''}`}
             onClick={handleValidate}
-            disabled={!documentText.trim() || generatedRules.length === 0 || loading}
+            disabled={!documentText.trim() && !uploadedFile || generatedRules.length === 0 || loading}
           >
             {loading ? (
               <>
@@ -114,7 +110,16 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<MainPage />} />
-          <Route path="/history" element={<HistoryPage />} />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <HistoryPage />
+            </ProtectedRoute>} 
+          />
+          <Route path="/admin/users" element={
+            <ProtectedRoute requiredRoles="admin">
+              <AdminUsersPage />
+            </ProtectedRoute>}
+          />
         </Routes>
       </AuthProvider>
     </NotificationProvider>

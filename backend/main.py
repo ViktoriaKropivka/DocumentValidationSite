@@ -14,7 +14,7 @@ from api.endpoints.users import router as users_router
 from api.endpoints.documents import router as documents_router
 from api.endpoints.rules import router as rules_router
 from api.endpoints.document_file import router as document_file_router
-
+from api.endpoints.admin import router as admin_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -56,6 +56,7 @@ app.include_router(users_router, prefix="/api/v1", tags=["users"])
 app.include_router(documents_router, prefix="/api/v1", tags=["documents"])
 app.include_router(rules_router, prefix="/api/v1", tags=["rules"])
 app.include_router(document_file_router, prefix="/api/v1", tags=["documents_save_file"])
+app.include_router(admin_router, prefix="/api/v1", tags=["admin"])
 
 @app.get("/")
 def read_root():

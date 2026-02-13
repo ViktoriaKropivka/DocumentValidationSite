@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { apiService } from "../services/api";
-import { Card } from "../components/UI/Card";
-import type { DocumentValidation } from "../types";
+import { apiService } from "../../services/api";
+import { Card } from "../../components/UI/Card";
+import type { DocumentValidation } from "../../types";
 import "./HistoryPage.css";
-import { AccountCard } from "../components/AccountCard/AccountCard";
+import { AccountCard } from "../../components/AccountCard/AccountCard";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 const HistoryPage: React.FC = () => {
   const [items, setItems] = useState<DocumentValidation[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+  
+  const { user, isModerator, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadHistory();
@@ -39,20 +42,13 @@ const HistoryPage: React.FC = () => {
     });
   };
 
-  const navigate = useNavigate();
-
   return (
     <div className="page-container">
-
-      <button
-        className="back-button"
-        onClick={() => navigate("/")}
-      >
+      <button className="back-button" onClick={() => navigate("/")}>
         ← На главную
       </button>
 
       <div className="history-page-stack">
-
         <AccountCard />
 
         <Card title="История проверок">
@@ -66,12 +62,24 @@ const HistoryPage: React.FC = () => {
                 const summary = item.validation_results?.summary || {};
                 const results = item.validation_results?.results || [];
                 const isExpanded = expandedItems.has(item.id);
+                const showOwner = (isModerator || isAdmin) && item.user_id !== user?.id;
 
                 return (
                   <div key={item.id} className="history-item">
-                    
                     <div className="history-header">
-                      <h3>{item.document_name}</h3>
+                      <h3>
+                        {item.document_name}
+                        {showOwner && (
+                          <span style={{ 
+                            fontSize: '12px', 
+                            marginLeft: '8px',
+                            opacity: 0.7,
+                            color: 'var(--accent-primary)'
+                          }}>
+                            (ID пользователя: {item.user_id})
+                          </span>
+                        )}
+                      </h3>
                       <span className="history-date">
                         {new Date(item.created_at).toLocaleString()}
                       </span>

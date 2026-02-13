@@ -66,7 +66,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
     
-    user = get_user_by_email(db, email)
+    user = db.query(User).filter(User.email == email).first()
     if user is None:
         raise credentials_exception
         

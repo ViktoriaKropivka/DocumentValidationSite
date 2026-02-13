@@ -12,14 +12,20 @@ router = APIRouter()
 
 @router.get("/validation-history", response_model=List[schemas.DocumentValidation])
 async def get_validation_history(
-    current_user: User = Depends(get_current_user),
+    current_user = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Получает историю проверок документов пользователя"""
     try:
-        validations = db.query(DocumentValidation).filter(
-            DocumentValidation.user_id == current_user.id
-        ).order_by(DocumentValidation.created_at.desc()).all()
+        user_role = str(current_user.role) if current_user.role else "user"
+        
+        if user_role in ["admin", "moderator"]:
+            validations = db.query(DocumentValidation).order_by(
+                DocumentValidation.created_at.desc()
+            ).all()
+        else:
+            validations = db.query(DocumentValidation).filter(
+                DocumentValidation.user_id == current_user.id
+            ).order_by(DocumentValidation.created_at.desc()).all()
         
         return validations
         

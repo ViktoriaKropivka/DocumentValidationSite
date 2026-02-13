@@ -113,6 +113,7 @@ class AIService:
         checks: Optional[List[Dict[str, Any]]] = None,
         user_id: Optional[int] = None,
         db=None,
+        document_name: Optional[str] = None,
     ) -> Dict[str, Any]:
 
         start = datetime.now()
@@ -157,7 +158,7 @@ class AIService:
             try:
                 validation_entry = DocumentValidation(
                     user_id=user_id,
-                    document_name="Validated Document",
+                    document_name=document_name or "Validated Document",
                     original_text=document_text,
                     validation_results=response
                 )
