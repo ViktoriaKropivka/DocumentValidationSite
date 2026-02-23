@@ -31,6 +31,15 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(days=7)
+    to_encode.update({
+        "exp": expire,
+        "type": "refresh"  
+    })
+    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
 def verify_token(token: str, db: Session) -> User:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
@@ -106,8 +115,14 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
         )
     
     access_token = create_access_token(data={"sub": db_user.email})
+    refresh_token = create_refresh_token(data={"sub": db_user.email})
+    db_user.refresh_token = refresh_token # type: ignore
+    db_user.refresh_token_expires = datetime.utcnow() + timedelta(days=7) # type: ignore
+    db.commit()
+
     return {
         "access_token": access_token, 
+        "refresh_token": refresh_token,
         "token_type": "bearer"
     }
 
@@ -118,3 +133,85 @@ def read_users_me(
 ):
     user = verify_token(credentials.credentials, db)
     return user
+
+@router.post("/refresh")
+def refresh_token(refresh_data: dict, db: Session = Depends(get_db)):
+    refresh_token = refresh_data.get("refresh_token")
+    
+    if not refresh_token:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token required"
+        )
+    
+    try:
+        payload = jwt.decode(
+            refresh_token, 
+            settings.SECRET_KEY, 
+            algorithms=[settings.ALGORITHM]
+        )
+        email = payload.get("sub")
+        
+        if payload.get("type") != "refresh":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type"
+            )
+            
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token"
+        )
+    
+    user = db.query(User).filter(
+        User.email == email,
+        User.refresh_token == refresh_token  # type: ignore
+    ).first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token not found or revoked"
+        )
+    
+    if user.refresh_token_expires and user.refresh_token_expires < datetime.utcnow(): # type: ignore
+        user.refresh_token = None  # type: ignore
+        user.refresh_token_expires = None  # type: ignore
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token expired"
+        )
+    
+    new_access_token = create_access_token(data={"sub": email})
+    new_refresh_token = create_refresh_token(data={"sub": email})
+    
+    user.refresh_token = new_refresh_token  # type: ignore
+    user.refresh_token_expires = datetime.utcnow() + timedelta(days=7)  # type: ignore
+    db.commit()
+    
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer"
+    }
+
+@router.post("/logout")
+def logout(token_data: dict, db: Session = Depends(get_db)):
+    refresh_token = token_data.get("refresh_token")
+    
+    if not refresh_token:
+        return {"message": "Logged out"}
+    
+    user = db.query(User).filter(
+        User.refresh_token == refresh_token  # type: ignore
+    ).first()
+    
+    if user:
+        user.refresh_token = None  # type: ignore
+        user.refresh_token_expires = None  # type: ignore
+        db.commit()
+        return {"message": "Logged out successfully, token revoked"}
+    
+    return {"message": "Logged out"}

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { User, UserCreate, UserLogin } from '../types';
-import { apiService } from '../services/api';
+import { api, apiService } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -11,8 +11,10 @@ interface AuthContextType {
   hasRole: (roles: string | string[]) => boolean;
   isAdmin: boolean;
   isModerator: boolean;
+  accessToken: string | null;
 }
 
+const [accessToken, setAccessToken] = useState<string | null>(null);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -25,20 +27,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await apiService.getProfile();
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        const response = await apiService.refreshToken(refreshToken);
+       // setAccessToken(response.data.access_token);
+        api.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
+        
+        const userResponse = await apiService.getProfile();
         const userData = {
-          ...response.data,
-          role: response.data.role || 'user'
+          ...userResponse.data,
+          role: userResponse.data.role || 'user'
         };
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
       }
     } catch (error) {
-      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('user');
-      console.error('Auth check failed:', error);
     } finally {
       setLoading(false);
     }
@@ -48,7 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       setLoading(true);
       const response = await apiService.login(credentials);
-      localStorage.setItem('token', response.data.access_token);
+      setAccessToken(response.data.access_token);
+      localStorage.setItem('refresh_token', response.data.refresh_token);
+      api.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
       const userResponse = await apiService.getProfile();
       const userData = {
         ...userResponse.data,
@@ -83,10 +90,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = (): void => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
+  const logout = async (): Promise<void> => {
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (refreshToken) {
+        await apiService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setAccessToken(null);
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      delete api.defaults.headers.common.Authorization;
+      setUser(null);
+      
+      window.dispatchEvent(new CustomEvent('app:logout'));
+    }
   };
 
   const hasRole = (roles: string | string[]): boolean => {
@@ -107,6 +127,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     hasRole,
     isAdmin,
     isModerator,
+    accessToken,
   };
 
   return (

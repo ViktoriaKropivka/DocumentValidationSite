@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import { AuthProvider } from './contexts/AuthContext';
@@ -50,7 +50,24 @@ const MainPage: React.FC = () => {
     }
   };
 
+  const clearAllData = () => {
+    setDocumentText('');
+    setGeneratedRules([]);
+    setValidationResults(null);
+    setUploadedFile(null);
+  };
 
+  useEffect(() => {
+    const handleLogout = () => {
+      clearAllData();
+    };
+    
+    window.addEventListener('app:logout', handleLogout);
+    
+    return () => {
+      window.removeEventListener('app:logout', handleLogout);
+    };
+  }, []); 
 
   return (
     <div className="app">
