@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from database.session import get_db
@@ -27,13 +27,13 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 def create_refresh_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(days=7)
+    expire = datetime.now(timezone.utc) + timedelta(days=7)
     to_encode.update({
         "exp": expire,
         "type": "refresh"  
@@ -117,7 +117,7 @@ def login(user: schemas.UserLogin, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": db_user.email})
     refresh_token = create_refresh_token(data={"sub": db_user.email})
     db_user.refresh_token = refresh_token # type: ignore
-    db_user.refresh_token_expires = datetime.utcnow() + timedelta(days=7) # type: ignore
+    db_user.refresh_token_expires = datetime.now(timezone.utc) + timedelta(days=7) # type: ignore
     db.commit()
 
     return {
@@ -175,14 +175,17 @@ def refresh_token(refresh_data: dict, db: Session = Depends(get_db)):
             detail="Refresh token not found or revoked"
         )
     
-    if user.refresh_token_expires and user.refresh_token_expires < datetime.utcnow(): # type: ignore
-        user.refresh_token = None  # type: ignore
-        user.refresh_token_expires = None  # type: ignore
-        db.commit()
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token expired"
-        )
+    if user.refresh_token_expires: # type: ignore
+        if user.refresh_token_expires.tzinfo is None:
+            expires_aware = user.refresh_token_expires.replace(tzinfo=timezone.utc)
+        else:
+            expires_aware = user.refresh_token_expires
+        
+        if expires_aware < datetime.now(timezone.utc): # type: ignore
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token expired"
+            )
     
     new_access_token = create_access_token(data={"sub": email})
     new_refresh_token = create_refresh_token(data={"sub": email})

@@ -5,6 +5,8 @@ import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import type { User } from '../../types';
 import './AdminUserPage.css';
+import { SEO } from '../../components/SEO/SEO';
+import { Skeleton } from '../../components/UI/Skeleton';
 
 type UserRole = 'user' | 'admin' | 'moderator';
 
@@ -79,117 +81,133 @@ const AdminUsersPage: React.FC = () => {
   };
 
   return (
-    <div className="admin-page">
-      <div className="admin-header">
-        <button className="back-button" onClick={() => navigate('/')}>
-          ← На главную
-        </button>
-        <h1>Управление пользователями</h1>
-      </div>
+    <>
+      <SEO 
+        title="Управление пользователями"
+        description="Панель администратора для управления пользователями"
+        robots="noindex, nofollow"
+      />
+      <div className="admin-page">
+        <div className="admin-header">
+          <button className="back-button" onClick={() => navigate('/')}>
+            ← На главную
+          </button>
+          <h1>Управление пользователями</h1>
+        </div>
 
-      <Card title="Все пользователи системы">
-        {loading ? (
-          <div className="loading-state">Загрузка пользователей...</div>
-        ) : (
-          <div className="users-table-container">
-            <table className="users-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Имя</th>
-                  <th>Email</th>
-                  <th>Роль</th>
-                  <th>Статус</th>
-                  <th>Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map(user => (
-                  <tr 
-                    key={user.id} 
-                    className={!user.is_active ? 'user-blocked' : ''}
-                  >
-                    <td>{user.id}</td>
-                    <td>{user.full_name}</td>
-                    <td>{user.email}</td>
-                    <td>
-                        <div className="role-cell">
-                            <span className="role-badge">
-                            {getRoleBadge(user.role as UserRole)}
-                            </span>
-                            {user.id !== currentUser?.id && (
-                            <select
-                                value={user.role}
-                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                disabled={updatingUserId === user.id}
-                                className="role-select"
-                            >
-                                <option value="user">Пользователь</option>
-                                <option value="moderator">Модератор</option>
-                                <option value="admin">Администратор</option>
-                            </select>
-                            )}
-                        </div>
-                        </td>
-                    <td>
-                      <span className={`status-badge ${user.is_active ? 'active' : 'blocked'}`}>
-                        {user.is_active ? 'Активен' : 'Заблокирован'}
-                      </span>
-                    </td>
-                    <td>
-                      {user.id !== currentUser?.id ? (
-                        <button
-                          onClick={() => handleToggleBlock(user.id)}
-                          disabled={updatingBlockId === user.id}
-                          className={`action-btn ${user.is_active ? 'block-btn' : 'unblock-btn'}`}
-                        >
-                          {updatingBlockId === user.id ? (
-                            <span className="spinner spinner-sm"></span>
-                          ) : user.is_active ? (
-                            'Блокировать'
-                          ) : (
-                            'Разблокировать'
-                          )}
-                        </button>
-                      ) : (
-                        <span className="current-user-badge">Это вы</span>
-                      )}
-                    </td>
+        <Card title="Все пользователи системы">
+          {loading ? (
+            <div className="users-table">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="user-row-skeleton">
+                  <Skeleton width="40px" height="20px" />
+                  <Skeleton width="150px" height="20px" />
+                  <Skeleton width="200px" height="20px" />
+                  <Skeleton width="100px" height="30px" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="users-table-container">
+              <table className="users-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Роль</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      <div style={{ marginTop: '24px' }}>
-        <Card title="Статистика">
-          <div className="info-content">
-            <div className="stat-item">
-              <span className="stat-label">Всего:</span>
-              <span className="stat-value">{users.length}</span>
+                </thead>
+                <tbody>
+                  {users.map(user => (
+                    <tr 
+                      key={user.id} 
+                      className={!user.is_active ? 'user-blocked' : ''}
+                    >
+                      <td>{user.id}</td>
+                      <td>{user.full_name}</td>
+                      <td>{user.email}</td>
+                      <td>
+                          <div className="role-cell">
+                              <span className="role-badge">
+                              {getRoleBadge(user.role as UserRole)}
+                              </span>
+                              {user.id !== currentUser?.id && (
+                              <select
+                                  value={user.role}
+                                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                  disabled={updatingUserId === user.id}
+                                  className="role-select"
+                              >
+                                  <option value="user">Пользователь</option>
+                                  <option value="moderator">Модератор</option>
+                                  <option value="admin">Администратор</option>
+                              </select>
+                              )}
+                          </div>
+                          </td>
+                      <td>
+                        <span className={`status-badge ${user.is_active ? 'active' : 'blocked'}`}>
+                          {user.is_active ? 'Активен' : 'Заблокирован'}
+                        </span>
+                      </td>
+                      <td>
+                        {user.id !== currentUser?.id ? (
+                          <button
+                            onClick={() => handleToggleBlock(user.id)}
+                            disabled={updatingBlockId === user.id}
+                            className={`action-btn ${user.is_active ? 'block-btn' : 'unblock-btn'}`}
+                          >
+                            {updatingBlockId === user.id ? (
+                              <span className="spinner spinner-sm"></span>
+                            ) : user.is_active ? (
+                              'Блокировать'
+                            ) : (
+                              'Разблокировать'
+                            )}
+                          </button>
+                        ) : (
+                          <span className="current-user-badge">Это вы</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Админы:</span>
-              <span className="stat-value">{users.filter(u => u.role === 'admin').length}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Модераторы:</span>
-              <span className="stat-value">{users.filter(u => u.role === 'moderator').length}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Пользователи:</span>
-              <span className="stat-value">{users.filter(u => u.role === 'user').length}</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Заблокированы:</span>
-              <span className="stat-value">{users.filter(u => !u.is_active).length}</span>
-            </div>
-          </div>
+          )}
         </Card>
+
+        <div style={{ marginTop: '24px' }}>
+          <Card title="Статистика">
+            <div className="info-content">
+              <div className="stat-item">
+                <span className="stat-label">Всего:</span>
+                <span className="stat-value">{users.length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Админы:</span>
+                <span className="stat-value">{users.filter(u => u.role === 'admin').length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Модераторы:</span>
+                <span className="stat-value">{users.filter(u => u.role === 'moderator').length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Пользователи:</span>
+                <span className="stat-value">{users.filter(u => u.role === 'user').length}</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Заблокированы:</span>
+                <span className="stat-value">{users.filter(u => !u.is_active).length}</span>
+              </div>
+            </div>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

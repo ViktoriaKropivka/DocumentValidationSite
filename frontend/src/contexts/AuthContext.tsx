@@ -14,12 +14,12 @@ interface AuthContextType {
   accessToken: string | null;
 }
 
-const [accessToken, setAccessToken] = useState<string | null>(null);
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     checkAuth();
@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         const response = await apiService.refreshToken(refreshToken);
-       // setAccessToken(response.data.access_token);
         api.defaults.headers.common.Authorization = `Bearer ${response.data.access_token}`;
         
         const userResponse = await apiService.getProfile();

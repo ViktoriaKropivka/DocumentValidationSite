@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Card } from '../UI/Card';
 import './DocumentInput.css';
+import imageCompression from 'browser-image-compression';
 
 interface DocumentInputProps {
   documentText: string;
@@ -21,25 +22,35 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string>('');
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
     if (!file) return;
 
-    setFileName(file.name);
-    onFileChange(file);
-
-    if (file.type === "text/plain") {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        onDocumentTextChange(e.target?.result as string);
-      };
-      reader.readAsText(file);
+    if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
+      try {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        };
+        
+        const compressedFile = await imageCompression(file, options);
+        setFileName(compressedFile.name);
+        onFileChange(compressedFile);
+        onDocumentTextChange("");
+        
+      } catch (error) {
+        console.error("Ошибка сжатия:", error);
+        setFileName(file.name);
+        onFileChange(file);
+        onDocumentTextChange("");
+      }
     } else {
+      setFileName(file.name);
+      onFileChange(file);
       onDocumentTextChange("");
     }
   };
-
 
   const handleClearFile = () => {
     setFileName("");
@@ -64,7 +75,7 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept=".txt,.doc,.docx,.pdf"
+            accept=".txt,.doc,.docx,.pdf,.jpg,.jpeg,.png,.gif,.bmp"
             style={{ display: 'none' }}
           />
           
@@ -88,6 +99,10 @@ export const DocumentInput: React.FC<DocumentInputProps> = ({
           </div>
 
           <div className="file-status">
+            <div className="file-formats-info">
+              Поддерживаемые форматы: 
+              <span className="format-badge">.txt, .doc, .docx, .pdf, .jpg, .jpeg, .png, .gif, .bmp</span>
+            </div>
             {fileName ? (
               <div className="file-success">
                 <span>📄</span>

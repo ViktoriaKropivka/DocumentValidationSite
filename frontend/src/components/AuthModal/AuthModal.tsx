@@ -11,7 +11,7 @@ interface AuthModalProps {
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const { login, register, loading } = useAuth();
-  const { showNotification } = useNotification(); // ← ОСТАВЛЯЕМ
+  const { showNotification } = useNotification();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -162,3 +162,5 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     </div>
   );
 };
+
+export { useAuth };

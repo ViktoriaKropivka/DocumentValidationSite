@@ -14,18 +14,21 @@ const API_BASE_URL = "http://localhost:8000/api/v1/";
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
+  withCredentials: true,
 });
 
 let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
+let failedQueue: any[] = [];
 
-const onRefreshed = (token: string) => {
-  refreshSubscribers.forEach(cb => cb(token));
-  refreshSubscribers = [];
-};
-
-const addRefreshSubscriber = (cb: (token: string) => void) => {
-  refreshSubscribers.push(cb);
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
 };
 
 api.interceptors.request.use((config) => {
@@ -40,59 +43,74 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
-    if (error.response?.status === 401 && 
-        !originalRequest._retry && 
-        originalRequest.url !== '/refresh') {
-      
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          addRefreshSubscriber((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(api(originalRequest));
-          });
-        });
-      }
-      
-      originalRequest._retry = true;
-      isRefreshing = true;
-      
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken) {
-          throw new Error('No refresh token');
-        }
-        
-        const response = await api.post('/refresh', { 
-          refresh_token: refreshToken 
-        });
-        
-        const { access_token, refresh_token } = response.data;
-        
-        localStorage.setItem('refresh_token', refresh_token);
-        
-        api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
-        
-        onRefreshed(access_token);
-        
-        return api(originalRequest);
-      } catch (refreshError) {
-        console.error('Не удалось обновить токен:', refreshError);
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user');
-        
-        window.location.href = '/';
-        
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
     }
     
-    return Promise.reject(error);
+    if (originalRequest.url === '/refresh') {
+      console.error('Refresh token недействителен');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      return Promise.reject(error);
+    }
+    
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then(token => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        })
+        .catch(err => Promise.reject(err));
+    }
+    
+    originalRequest._retry = true;
+    isRefreshing = true;
+    
+    try {
+      const refreshToken = localStorage.getItem('refresh_token');
+      if (!refreshToken) {
+        console.log('Нет refresh token — пользователь не авторизован');
+        processQueue(new Error('No refresh token'), null);
+        return Promise.reject(error);
+      }
+      
+      console.log('Обновляем токен...');
+      const response = await api.post('/refresh', { 
+        refresh_token: refreshToken 
+      });
+      
+      const { access_token, refresh_token } = response.data;
+      
+      localStorage.setItem('refresh_token', refresh_token);
+      
+      api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+      
+      processQueue(null, access_token);
+      
+      console.log('Токен обновлён');
+      
+      originalRequest.headers.Authorization = `Bearer ${access_token}`;
+      return api(originalRequest);
+      
+    } catch (refreshError) {
+      console.error('Не удалось обновить токен:', refreshError);
+      
+
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      
+      processQueue(refreshError, null);
+      
+      return Promise.reject(refreshError);
+      
+    } finally {
+      isRefreshing = false;
+    }
   }
 );
 
@@ -108,6 +126,12 @@ export const apiService = {
 
   getProfile: () =>
     api.get<User>("/users/me/"),
+
+  updateProfile: (userData: { full_name?: string; email?: string }) =>
+    api.put<User>("/users/me", userData),
+
+  deleteAccount: () =>
+    api.delete("/users/me"),
 
   logout: (refreshToken: string) =>
     api.post("/logout", { refresh_token: refreshToken }),
@@ -164,8 +188,14 @@ export const apiService = {
     return { data: response.data };
   },
 
-  getValidationHistory: () =>
-    api.get<DocumentValidation[]>("/validation-history"),
+  getValidationHistory: (params?: any) =>
+    api.get<{
+      items: DocumentValidation[];
+      total: number;
+      page: number;
+      page_size: number;
+      total_pages: number;
+    }>("/validation-history", { params }),
 
   saveValidation: (payload: any) =>
     api.post("/save-validation", payload),
@@ -181,4 +211,7 @@ export const apiService = {
     
   toggleUserBlock: (userId: number) =>
     api.put(`/admin/users/${userId}/toggle-block`),
+
+  getDownloadUrl: (documentId: number) =>
+    api.get<{ download_url: string; filename: string }>(`/documents/${documentId}/download`),
 };

@@ -18,6 +18,8 @@ import type { ValidationRule, ValidationResponse } from './types';
 
 import './App.css';
 import { apiService } from './services/api';
+import { SEO } from './components/SEO/SEO';
+import NotFoundPage from './pages/NotFoundPage/NotFoundPage';
 
 const MainPage: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -70,54 +72,60 @@ const MainPage: React.FC = () => {
   }, []); 
 
   return (
-    <div className="app">
-      <Header onAuthClick={() => setIsAuthModalOpen(true)} />
+    <>
+      <SEO
+        title='Главная - Проверка документов с помощью AI'
+        description='Загрузите документ и получите мгновенный анализ с помощью искусственного интеллекта'
+      />
+      <div className="app">
+        <Header onAuthClick={() => setIsAuthModalOpen(true)} />
 
-      <div className="app-container">
-        <DocumentInput
-          documentText={documentText}
-          onDocumentTextChange={setDocumentText}
-          onFileChange={setUploadedFile}
-          onValidate={handleValidate}
-          onClear={() => {
-            setDocumentText('');
-            setUploadedFile(null);
-            setValidationResults(null);
-          }}
-          loading={loading}
-          hasRules={generatedRules.length > 0}
-        />
+        <div className="app-container">
+          <DocumentInput
+            documentText={documentText}
+            onDocumentTextChange={setDocumentText}
+            onFileChange={setUploadedFile}
+            onValidate={handleValidate}
+            onClear={() => {
+              setDocumentText('');
+              setUploadedFile(null);
+              setValidationResults(null);
+            }}
+            loading={loading}
+            hasRules={generatedRules.length > 0}
+          />
 
-        <RuleGenerator
-          onRulesGenerated={setGeneratedRules}
-          rules={generatedRules}
-        />
+          <RuleGenerator
+            onRulesGenerated={setGeneratedRules}
+            rules={generatedRules}
+          />
 
-        <div className="validate-button-container">
-          <button
-            className={`btn btn-primary ${loading ? 'loading' : ''}`}
-            onClick={handleValidate}
-            disabled={!documentText.trim() && !uploadedFile || generatedRules.length === 0 || loading}
-          >
-            {loading ? (
-              <>
-                <span className="spinner"></span>
-                Проверка...
-              </>
-            ) : (
-              'Проверить документ'
-            )}
-          </button>
+          <div className="validate-button-container">
+            <button
+              className={`btn btn-primary ${loading ? 'loading' : ''}`}
+              onClick={handleValidate}
+              disabled={!documentText.trim() && !uploadedFile || generatedRules.length === 0 || loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner"></span>
+                  Проверка...
+                </>
+              ) : (
+                'Проверить документ'
+              )}
+            </button>
+          </div>
+
+          <ValidationResults results ={validationResults} />
         </div>
 
-        <ValidationResults results ={validationResults} />
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
       </div>
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
-    </div>
+    </>
   );
 };
 
@@ -137,6 +145,7 @@ function App() {
               <AdminUsersPage />
             </ProtectedRoute>}
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </NotificationProvider>

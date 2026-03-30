@@ -15,6 +15,13 @@ from api.endpoints.documents import router as documents_router
 from api.endpoints.rules import router as rules_router
 from api.endpoints.document_file import router as document_file_router
 from api.endpoints.admin import router as admin_router
+from api.endpoints.seo import router as seo_router
+from api.endpoints.ocr import router as ocr_router
+
+from database.models import User
+from database.models import DocumentValidation
+from database.models import ValidationRule
+from database.models import ValidationSession
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,14 +36,20 @@ async def log_requests(request: Request, call_next):
     content_type = request.headers.get("content-type", "")
 
     if "multipart/form-data" in content_type:
-        print(f"Request (multipart): {request.method} {request.url}")
         response = await call_next(request)
         return response
 
     try:
         body = await request.body()
-        print(f"Request: {request.method} {request.url}")
-        print(f"Request body: {body.decode('utf-8', errors='ignore')}")
+        if body:
+            try:
+                body_text = body.decode('utf-8')
+                print(f"Request: {request.method} {request.url}")
+                print(f"Request body: {body_text}")
+            except UnicodeDecodeError:
+                print(f"Request: {request.method} {request.url} [binary data]")
+        else:
+            print(f"Request: {request.method} {request.url}")
     except Exception as e:
         print(f"Error reading body: {e}")
 
@@ -57,6 +70,8 @@ app.include_router(documents_router, prefix="/api/v1", tags=["documents"])
 app.include_router(rules_router, prefix="/api/v1", tags=["rules"])
 app.include_router(document_file_router, prefix="/api/v1", tags=["documents_save_file"])
 app.include_router(admin_router, prefix="/api/v1", tags=["admin"])
+app.include_router(seo_router, prefix="", tags=["seo"])
+app.include_router(ocr_router, prefix="/api/v1", tags=["ocr"])
 
 @app.get("/")
 def read_root():

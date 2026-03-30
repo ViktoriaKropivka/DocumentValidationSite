@@ -1,0 +1,12 @@
+venv
+__pycache__
+*.pyc
+.env
+.git
+.dockerignore
+Dockerfile
+README.md
+test.db
+*.db
+doc_validator.db
+*.sqlite

@@ -6,10 +6,6 @@ except Exception:
     PyPDF2 = None
 
 def extract_pdf_text(path_or_bytes: Union[str, bytes]) -> str:
-    """
-    Принимает либо путь к PDF-файлу (str), либо bytes содержимое PDF.
-    Возвращает извлечённый текст (пустая строка при ошибке).
-    """
     if PyPDF2 is None:
         raise RuntimeError("PyPDF2 not installed")
 

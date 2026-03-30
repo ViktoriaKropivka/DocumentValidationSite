@@ -68,6 +68,7 @@ export interface ValidationResponse {
 }
 
 export interface DocumentValidation {
+  file_path: any;
   id: number;
   user_id: number;
   document_name: string;

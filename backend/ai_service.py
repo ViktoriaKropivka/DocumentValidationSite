@@ -1,3 +1,5 @@
+import base64
+
 import requests
 import logging
 import re
@@ -154,22 +156,67 @@ class AIService:
             "summary": summary
         }
 
-        if user_id is not None and db is not None:
-            try:
-                validation_entry = DocumentValidation(
-                    user_id=user_id,
-                    document_name=document_name or "Validated Document",
-                    original_text=document_text,
-                    validation_results=response
-                )
-                db.add(validation_entry)
-                db.commit()
-                db.refresh(validation_entry)
-            except Exception:
-                db.rollback()
-
         return response
 
+
+    async def validate_image(self, image_bytes: bytes, filename: str) -> Dict[str, Any]:
+        try:
+            encoded = base64.b64encode(image_bytes).decode('utf-8')
+            
+            response = requests.post(
+                "https://api.ocr.space/parse/image",
+                data={
+                    "apikey": "your_api_key_here",
+                    "base64Image": f"data:image/{filename.split('.')[-1]};base64,{encoded}",
+                    "language": "rus",
+                    "isOverlayRequired": False
+                },
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                if result.get("IsErroredOnProcessing"):
+                    return {
+                        "success": False,
+                        "error": result.get("ErrorMessage", "Ошибка OCR")
+                    }
+                
+                parsed_text = "\n".join(
+                    [line["ParsedText"] for line in result.get("ParsedResults", [])]
+                )
+                
+                return {
+                    "success": True,
+                    "text": parsed_text,
+                    "results": [
+                        {
+                            "check_id": 1,
+                            "check": "Распознавание текста",
+                            "check_type": "OCR",
+                            "passed": True,
+                            "message": f"Текст распознан: {len(parsed_text)} символов",
+                            "parameters": {}
+                        }
+                    ],
+                    "summary": {
+                        "total_checks": 1,
+                        "passed": 1,
+                        "failed": 0,
+                        "success_rate": 100
+                    }
+                }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Ошибка API: {response.status_code}"
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
 
     def _classify_request_with_model(self, user_request: str) -> List[str]:
         """

@@ -1,0 +1,55 @@
+.not-found-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.not-found-content {
+  text-align: center;
+  padding: 32px;
+}
+
+.not-found-image {
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 24px;
+  opacity: 0.9;
+  transition: transform 0.3s ease;
+}
+
+.not-found-image:hover {
+  transform: scale(1.02);
+}
+
+.not-found-content h2 {
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.not-found-content p {
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  font-size: 16px;
+}
+
+.not-found-btn {
+  padding: 14px 32px;
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.not-found-btn:hover {
+  background: rgba(126, 87, 194, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(126, 87, 194, 0.3);
+}

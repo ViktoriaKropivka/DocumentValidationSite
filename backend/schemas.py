@@ -76,6 +76,24 @@ class DocumentValidation(DocumentValidationBase):
     user_id: int
     validation_results: Dict[str, Any]
     created_at: datetime
+    file_path: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+
+class PaginatedValidationHistory(BaseModel):
+    items: List[DocumentValidation]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+    
+    class Config:
+        from_attributes = True
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = Field(None, min_length=1, max_length=255)
+    email: Optional[EmailStr] = None
+    
     class Config:
         from_attributes = True

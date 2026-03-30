@@ -140,3 +140,27 @@
   scrollbar-color: rgba(126, 87, 194, 0.6) rgba(255, 255, 255, 0.05);
   height: 300px;
 }
+
+.file-formats-info {
+  padding: 12px;
+  background: rgba(126, 87, 194, 0.1);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.format-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: rgba(126, 87, 194, 0.2);
+  border: 1px solid rgba(126, 87, 194, 0.3);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-family: monospace;
+}

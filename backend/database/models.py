@@ -40,6 +40,7 @@ class DocumentValidation(Base):
     original_text = Column(Text)
     validation_results = Column(JSON, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    file_path = Column(String(512), nullable=True)
 
 class ValidationSession(Base):
     __tablename__ = "validation_sessions"

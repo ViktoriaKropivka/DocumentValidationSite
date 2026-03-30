@@ -6,23 +6,130 @@
 
 .account-row {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.account-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  width: 80px;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
-.account-row .label {
-  color: var(--text-secondary);
+.value {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 14px;
 }
 
-.account-row .value {
-  font-weight: 500;
-  color: white;
+.role-badge-small {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  background: rgba(126, 87, 194, 0.15);
+  color: var(--text-primary);
+  border: 1px solid rgba(126, 87, 194, 0.3);
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(126, 87, 194, 0.2);
 }
 
 .account-status {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 6px;
+  color: var(--success);
+  font-size: 14px;
+  text-align: center;
+}
+
+.account-actions {
+  display: flex;
+  gap: 12px;
   margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 13px;
-  color: #4ade80;
+}
+
+.edit-btn, .save-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--accent-primary);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover, .save-btn:hover:not(:disabled) {
+  background: rgba(126, 87, 194, 0.9);
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.delete-account-btn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(239, 68, 68, 0.7);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.delete-account-btn:hover {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+.error-message {
+  padding: 8px 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: var(--error);
+  font-size: 14px;
+  margin: 8px 0;
+}
+
+.save-btn:disabled,
+.cancel-btn:disabled,
+.delete-account-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
